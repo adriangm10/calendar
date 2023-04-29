@@ -1,0 +1,127 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color: #0f0f0f;
+  background-color: #1a1b26;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 45px 45px 45px 45px 45px 45px 45px;
+    grid-template-rows: auto auto auto auto auto auto; 
+    gap: 2px;
+    left: 50%;
+    justify-content: center;
+}
+
+.grid-item {
+    padding: 0px;
+    align-items: center;
+}
+
+.today{
+    background-color: transparent;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    transition: none;
+    box-shadow: none;
+    border-width: 2px;
+    border-color: #ff1241;
+}
+.today:hover{
+    border-color: #ff1241;
+}
+.today:active{
+    background-color: #ff1241;
+}
+
+.day{
+    background-color: transparent;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    transition: none;
+    box-shadow: none;
+    border-width: 2px;
+}
+
+.arrow{
+    background-color: transparent;
+    background-repeat: no-repeat;
+    border: none;
+    overflow: hidden;
+    transition: none;
+    box-shadow: none;
+    padding: 0px;
+    padding-top: 10px;
+}
+.arrow:hover{
+    color: #ea00d9;
+}
+.arrow:active{
+    background-color: transparent;
+    border-color: transparent;
+}
+
+input,
+button{
+    border: 1px solid transparent;
+    width: 45px;
+    padding: 0.6em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    color: #f0f0f0;
+    background-color: #ffffff;
+    transition: border-color 0.25s;
+    text-align: center;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: #ea00d9;
+}
+button:active {
+  border-color: #ea00d9;
+  background-color: #ea00d9;
+}
+
+input,
+button {
+  outline: none;
+}
+
+#greet-input {
+  margin-right: 5px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f6f6f6;
+    background-color: #2f2f2f;
+  }
+
+  a:hover {
+    color: #24c8db;
+  }
+
+  input,
+  button {
+    color: #ffffff;
+    background-color: #0f0f0f98;
+  }
+  button:active {
+    background-color: #0f0f0f69;
+  }
+}
