@@ -3,6 +3,10 @@ import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 
 function App() {
+    const [date, setDate] = useState(new Date());
+    const today = new Date();
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
     function daysInMonth(year, month) {
         return new Date(year, month + 1, 0).getDate();
     }
@@ -15,7 +19,7 @@ function App() {
         );
     }
 
-    function Month({date}){
+    function Month(){
         const days = daysInMonth(date.getFullYear(), date.getMonth());
         // const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         let monthDays = [];
@@ -29,7 +33,7 @@ function App() {
         }
 
         for(let day = 1; day <= days; day++){
-            if(day === date.getDate())
+            if(day === date.getDate() && today.getMonth() === date.getMonth())
                 day_name = "today";
             else day_name = "day";
 
@@ -38,18 +42,28 @@ function App() {
 
         return(
             <div className="grid-container">
-                {monthDays}
+            {monthDays}
             </div>
         );
     }
 
-    const [date, setDate] = useState(new Date());
+    function prevMonth(){
+        setDate(new Date(date.getFullYear(), date.getMonth() - 1, date.getDate()));
+    }
+
+    function nextMonth(){
+        setDate(new Date(date.getFullYear(), date.getMonth() + 1, date.getDate()));
+    }
 
     return(
         <>
-        <button className="arrow"></button>
-        <button className="arrow"></button>
-        <Month date={date} />
+        <div className="header">
+        <label htmlFor="arrow" className="month">{months[date.getMonth()]}</label>
+        <button className="arrow" onClick={prevMonth}></button>
+        <button className="arrow" onClick={nextMonth}></button>
+        </div>
+        <Month />
+        <h1>{today.toDateString()}</h1>
         </>
     );
 }

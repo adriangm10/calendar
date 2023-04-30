@@ -4,7 +4,7 @@
   line-height: 24px;
   font-weight: 400;
 
-  color: #0f0f0f;
+  color: #f0f0f0;
   background-color: #1a1b26;
 
   font-synthesis: none;
@@ -14,10 +14,25 @@
   -webkit-text-size-adjust: 100%;
 }
 
+h1 {
+    text-align: center;
+    font-size: 18px;
+}
+
+.header{
+    vertical-align: middle;
+    text-align: right;
+    padding-right: 20px;
+}
+
+.month {
+    text-align: center;
+    padding-right: 10px;
+}
+
 .grid-container {
     display: grid;
     grid-template-columns: 45px 45px 45px 45px 45px 45px 45px;
-    grid-template-rows: auto auto auto auto auto auto; 
     gap: 2px;
     left: 50%;
     justify-content: center;
@@ -60,8 +75,8 @@
     overflow: hidden;
     transition: none;
     box-shadow: none;
+    width: 20px;
     padding: 0px;
-    padding-top: 10px;
 }
 .arrow:hover{
     color: #ea00d9;
