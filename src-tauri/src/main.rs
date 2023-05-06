@@ -13,8 +13,11 @@ use todo::Todo;
 pub mod todo;
 
 #[tauri::command]
-fn month_events(year: usize, month: usize) -> Result<Vec<Todo>, todo::Error> {
-    let f = File::open("calendar_events.txt")?;
+fn month_events(year: usize, month: usize, app_handle: tauri::AppHandle) -> Result<Vec<Todo>, todo::Error> {
+    let app_dir = app_handle.path_resolver().app_data_dir();
+    let mut path = app_dir.ok_or(std::io::Error::new(std::io::ErrorKind::Other, "could not get default path"))?;
+    path.push("calendar_events.txt");
+    let f = File::open(path)?;
     let mut events: Vec<Todo> = Vec::new();
 
     for line in BufReader::new(f).lines() {
@@ -32,19 +35,22 @@ fn month_events(year: usize, month: usize) -> Result<Vec<Todo>, todo::Error> {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-fn write_todo(year: usize, month: usize, day: usize, msg: String) -> Result<(), todo::Error> {
-    let mut f = File::options().append(true).create(true).open("calendar_events.txt")?;
+fn write_todo(year: usize, month: usize, day: usize, msg: String, app_handle: tauri::AppHandle) -> Result<(), todo::Error> {
+    let app_dir = app_handle.path_resolver().app_data_dir();
+    let mut path = app_dir.ok_or(std::io::Error::new(std::io::ErrorKind::Other, "could not get default path"))?;
+    path.push("calendar_events.txt");
+    let mut f = File::options().append(true).create(true).open(path.clone())?;
     let mut ev = Todo::create(year, month, day, msg).to_string();
     ev.push('\n');
     f.write_all(ev.as_bytes())?;
 
     f.sync_all()?;
+    // String::from_str(path.to_str().ok_or(std::io::Error::new(std::io::ErrorKind::Other, "xd"))?).map_err(|_| std::io::Error::new(std::io::ErrorKind::Other, "xd"))?
     Ok(())
 }
 
 fn main() {
     tauri::Builder::default()
-        // .invoke_handler(tauri::generate_handler![greet])
         .invoke_handler(tauri::generate_handler![month_events, write_todo])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

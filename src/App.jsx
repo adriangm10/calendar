@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 
@@ -28,13 +28,13 @@ function App() {
         setSelected_day(day);
     }
 
-    function newEvent(){
-        invoke("write_todo", {
+    async function newEvent(){
+        setEv_return(await invoke("write_todo", {
             year: date.getFullYear(),
             month: date.getMonth(),
             day: selected_day,
             msg: ev_msg
-        }).then(() => { setEv_return("the event was succesfully created"); });
+        }).then(() => { return "the event was succesfully created"; }).catch((e) => {return e.toString();}));
     }
 
     function DayTodos(){
