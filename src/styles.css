@@ -55,11 +55,7 @@ h1 {
 }
 
 .today{
-    background-color: transparent;
-    background-repeat: no-repeat;
-    overflow: hidden;
     transition: none;
-    box-shadow: none;
     border-width: 2px;
     border-color: #ff1241;
 }
@@ -71,12 +67,12 @@ h1 {
 }
 
 .day{
-    background-color: transparent;
-    background-repeat: no-repeat;
-    overflow: hidden;
     transition: none;
-    box-shadow: none;
     border-width: 2px;
+}
+.selected-day{
+    transition: none;
+    border: 2px solid #ea00d9;
 }
 
 .arrow{
@@ -113,7 +109,6 @@ button{
 button {
   cursor: pointer;
 }
-
 button:hover {
   border-color: #ea00d9;
 }

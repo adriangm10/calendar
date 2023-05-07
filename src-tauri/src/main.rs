@@ -34,12 +34,12 @@ fn month_events(year: usize, month: usize, app_handle: tauri::AppHandle) -> Resu
     return Ok(events);
 }
 
-#[tauri::command(rename_all = "snake_case")]
+#[tauri::command]
 fn write_todo(year: usize, month: usize, day: usize, msg: String, app_handle: tauri::AppHandle) -> Result<(), todo::Error> {
     let app_dir = app_handle.path_resolver().app_data_dir();
     let mut path = app_dir.ok_or(std::io::Error::new(std::io::ErrorKind::Other, "could not get default path"))?;
     path.push("calendar_events.txt");
-    let mut f = File::options().append(true).create(true).open(path.clone())?;
+    let mut f = File::options().append(true).create(true).open(path)?;
     let mut ev = Todo::create(year, month, day, msg).to_string();
     ev.push('\n');
     f.write_all(ev.as_bytes())?;

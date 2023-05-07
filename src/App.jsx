@@ -7,11 +7,13 @@ function App() {
     const today = new Date();
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     // const weekDays = [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const [show_months, setShow_months] = useState(false);
+    const [showMonthNames, setShowMonths] = useState(false);
     const [selected_day, setSelected_day] = useState(date.getDate());
     const [create_event, setCreate_event] = useState(false);
     const [ev_msg, setEv_msg] = useState("");
     const [ev_return, setEv_return] = useState("");
+    const [show_events, setShowEvents] = useState(false);
+    const [day_events, setDayEvents] = useState([]);
 
     async function get_month_events(){
         return await invoke("month_events", {
@@ -37,30 +39,26 @@ function App() {
         }).then(() => { return "the event was succesfully created"; }).catch((e) => {return e.toString();}));
     }
 
-    function DayTodos(){
-        const [day_events, setDayEvents] = useState([]);
-
-        get_month_events().then((month_events) => {
+    function dayTodos(){
+        get_month_events().then((evs) => {
             const day_events = [];
-            for(let i = 0; i < month_events.length; i++){
-                if(parseInt(month_events[i].day) === selected_day){
-                    day_events.push(<p>{month_events[i].msg}</p>);
+            for(let i = 0; i < evs.length; i++){
+                if(parseInt(evs[i].day) === selected_day){
+                    day_events.push(<p>{evs[i].msg}</p>);
                 }
             }
             setDayEvents(day_events);
         });
-
-        return(
-            <>
-            {day_events}
-            <button onClick={() => {setCreate_event(true);}}>New event</button>
-            </>
-        );
     }
 
     function Square({value, name}){
         return(
-            <button key={value} className={name} onClick={() => changeDay(parseInt(value))}>
+            <button key={value} className={name} onClick={
+                () => {
+                    changeDay(parseInt(value));
+                    dayTodos();
+                    setShowEvents(true);
+                }}>
                 {value}
             </button>
         );
@@ -82,6 +80,7 @@ function App() {
         for(let day = 1; day <= days; day++){
             if(day === today.getDate() && today.getMonth() === date.getMonth() && today.getFullYear() === date.getFullYear())
                 day_name = "today";
+            else if(day === selected_day) day_name = "selected-day";
             else day_name = "day";
 
             monthDays.push(<Square value={day} name={day_name} />);
@@ -102,6 +101,17 @@ function App() {
         setDate(new Date(date.getFullYear(), date.getMonth() + 1, date.getDate()));
     }
 
+    if(show_events){
+        return(
+            <>
+            <h1>Events for day {selected_day}</h1>
+            {day_events}
+            <button onClick={() => setShowEvents(false)}>back</button>
+            <button onClick={() => {setCreate_event(true); setShowEvents(false);}}>New event</button>
+            </>
+        );
+    }
+
     if(create_event){
         return(
             <>
@@ -110,25 +120,27 @@ function App() {
                 newEvent();
                 e.currentTarget.reset()
             }} >
-            <input onChange={(e) => setEv_msg(e.currentTarget.value)} placeholder="Enter the event message" />
+            <input onChange={(e) => setEv_msg(e.currentTarget.value)} placeholder="Enter the event description" />
             <button>create event</button>
             </form>
             <button onClick={() => {
                 setCreate_event(false);
+                setShowEvents(true);
                 setEv_return("");
+                dayTodos();
             }}>back</button>
             <p>{ev_return}</p>
             </>
         );
     }
 
-    if(show_months){
+    if(showMonthNames){
         return(
             <div className="month-names">
             {months.map((month, i) => 
                 <button key={i} onClick={
                     () => {
-                        setShow_months(false);
+                        setShowMonths(false);
                         date.setMonth(i);
                     }
                 }>
@@ -142,12 +154,20 @@ function App() {
     return(
         <>
         <div className="header">
-        <button className="month" onClick={() => setShow_months(true)}>{months[date.getMonth()].concat(" ", date.getFullYear().toString())}</button>
-        <button className="arrow" onClick={prevMonth}></button>
-        <button className="arrow" onClick={nextMonth}></button>
+        <button className="month" onClick={() => {
+            setSelected_day(0);
+            setShowMonths(true);
+        }}>{months[date.getMonth()].concat(" ", date.getFullYear().toString())}</button>
+        <button className="arrow" onClick={() => {
+            prevMonth();
+            setSelected_day(0);
+        }}></button>
+        <button className="arrow" onClick={() => {
+            nextMonth();
+            setSelected_day(0);
+        }}></button>
         </div>
         <Month />
-        <DayTodos />
         </>
     );
     // <h1>{weekDays[today.getDay()].concat(", ", months[today.getMonth()], " ", today.getDate(), ", ", today.getFullYear())}</h1>
