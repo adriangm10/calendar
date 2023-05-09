@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 
@@ -13,21 +13,34 @@ function App() {
     const [ev_msg, setEv_msg] = useState("");
     const [ev_return, setEv_return] = useState("");
     const [show_events, setShowEvents] = useState(false);
-    const [day_events, setDayEvents] = useState([]);
+    const [month_events, setMonthEvents] = useState([]);
 
-    async function get_month_events(){
-        return await invoke("month_events", {
+    async function monthEvents() {
+        setMonthEvents(await invoke("month_events", {
             year: date.getFullYear(),
             month: date.getMonth(),
-        }).then((evs) => {return evs;}).catch(() => {return [];});
+        }));
+    }
+
+    useEffect(() => {monthEvents();}, []);
+
+    function DayTodos(){
+        const day_events = [];
+        for(let i = 0; i < month_events.length; i++){
+            if(parseInt(month_events[i].day) === selected_day){
+                day_events.push(<li>{month_events[i].msg}</li>);
+            }
+        }
+
+        return(
+            <ul>
+            {day_events}
+            </ul>
+        );
     }
 
     function daysInMonth(year, month) {
         return new Date(year, month + 1, 0).getDate();
-    }
-
-    function changeDay(day){
-        setSelected_day(day);
     }
 
     async function newEvent(){
@@ -39,25 +52,13 @@ function App() {
         }).then(() => { return "the event was succesfully created"; }).catch((e) => {return e.toString();}));
     }
 
-    function dayTodos(){
-        get_month_events().then((evs) => {
-            const day_events = [];
-            for(let i = 0; i < evs.length; i++){
-                if(parseInt(evs[i].day) === selected_day){
-                    day_events.push(<p>{evs[i].msg}</p>);
-                }
-            }
-            setDayEvents(day_events);
-        });
-    }
-
     function Square({value, name}){
         return(
             <button key={value} className={name} onClick={
                 () => {
-                    changeDay(parseInt(value));
-                    dayTodos();
+                    setSelected_day(parseInt(value));
                     setShowEvents(true);
+                    // monthEvents();
                 }}>
                 {value}
             </button>
@@ -80,7 +81,7 @@ function App() {
         for(let day = 1; day <= days; day++){
             if(day === today.getDate() && today.getMonth() === date.getMonth() && today.getFullYear() === date.getFullYear())
                 day_name = "today";
-            else if(day === selected_day) day_name = "selected-day";
+            // else if(day === selected_day) day_name = "selected-day";
             else day_name = "day";
 
             monthDays.push(<Square value={day} name={day_name} />);
@@ -94,18 +95,20 @@ function App() {
     }
 
     function prevMonth(){
-        setDate(new Date(date.getFullYear(), date.getMonth() - 1, date.getDate()));
+        date.setMonth(date.getMonth() - 1);
+        monthEvents();
     }
 
     function nextMonth(){
-        setDate(new Date(date.getFullYear(), date.getMonth() + 1, date.getDate()));
+        date.setMonth(date.getMonth() + 1);
+        monthEvents();
     }
 
     if(show_events){
         return(
             <>
             <h1>Events for day {selected_day}</h1>
-            {day_events}
+            <DayTodos />
             <button onClick={() => setShowEvents(false)}>back</button>
             <button onClick={() => {setCreate_event(true); setShowEvents(false);}}>New event</button>
             </>
@@ -118,7 +121,7 @@ function App() {
             <form onSubmit={(e) => {
                 e.preventDefault();
                 newEvent();
-                e.currentTarget.reset()
+                e.currentTarget.reset();
             }} >
             <input onChange={(e) => setEv_msg(e.currentTarget.value)} placeholder="Enter the event description" />
             <button>create event</button>
@@ -127,7 +130,7 @@ function App() {
                 setCreate_event(false);
                 setShowEvents(true);
                 setEv_return("");
-                dayTodos();
+                monthEvents();
             }}>back</button>
             <p>{ev_return}</p>
             </>
@@ -142,6 +145,7 @@ function App() {
                     () => {
                         setShowMonths(false);
                         date.setMonth(i);
+                        monthEvents();
                     }
                 }>
                 {month}
@@ -155,17 +159,17 @@ function App() {
         <>
         <div className="header">
         <button className="month" onClick={() => {
-            setSelected_day(0);
+            //setSelected_day(0);
             setShowMonths(true);
         }}>{months[date.getMonth()].concat(" ", date.getFullYear().toString())}</button>
         <button className="arrow" onClick={() => {
             prevMonth();
-            setSelected_day(0);
-        }}></button>
+            //setSelected_day(0);
+        }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
         <button className="arrow" onClick={() => {
             nextMonth();
-            setSelected_day(0);
-        }}></button>
+            //setSelected_day(0);
+        }}><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
         </div>
         <Month />
         </>

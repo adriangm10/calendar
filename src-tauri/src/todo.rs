@@ -26,11 +26,11 @@ impl Serialize for Error {
 
 
 impl Todo {
-    pub fn new() -> Self {
+    pub fn default() -> Self {
         Todo { year: 0, month: 0, day: 0, msg: "".to_string() }
     }
 
-    pub fn create(year: usize, month: usize, day: usize, msg: String) -> Self {
+    pub fn new(year: usize, month: usize, day: usize, msg: String) -> Self {
         Todo { year, month, day, msg }
     }
 
@@ -65,7 +65,7 @@ impl FromStr for Todo {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let ev: Vec<&str> = s.splitn(3, "/").collect();
-        let mut event = Todo::new();
+        let mut event = Todo::default();
         event.year = ev[0].parse::<usize>().map_err(|_| ParseEventError)?;
         event.month = ev[1].parse::<usize>().map_err(|_| ParseEventError)?;
         let (day, msg) = ev[2].split_once(":").ok_or(ParseEventError)?;

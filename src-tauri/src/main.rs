@@ -40,7 +40,7 @@ fn write_todo(year: usize, month: usize, day: usize, msg: String, app_handle: ta
     let mut path = app_dir.ok_or(std::io::Error::new(std::io::ErrorKind::Other, "could not get default path"))?;
     path.push("calendar_events.txt");
     let mut f = File::options().append(true).create(true).open(path)?;
-    let mut ev = Todo::create(year, month, day, msg).to_string();
+    let mut ev = Todo::new(year, month, day, msg).to_string();
     ev.push('\n');
     f.write_all(ev.as_bytes())?;
 

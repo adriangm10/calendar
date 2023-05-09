@@ -27,7 +27,7 @@ h1 {
 
 .month {
     width: 45px;
-    padding-right: 235px;
+    padding-right: 248px;
     background-color: transparent;
     white-space: nowrap;
 }
@@ -70,10 +70,6 @@ h1 {
     transition: none;
     border-width: 2px;
 }
-.selected-day{
-    transition: none;
-    border: 2px solid #ea00d9;
-}
 
 .arrow{
     background-color: transparent;
@@ -82,8 +78,8 @@ h1 {
     overflow: hidden;
     transition: none;
     box-shadow: none;
-    width: 30px;
     padding: 0px;
+    vertical-align: middle;
 }
 .arrow:hover{
     color: #ea00d9;
