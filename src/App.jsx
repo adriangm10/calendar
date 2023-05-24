@@ -24,6 +24,13 @@ function App() {
 
     useEffect(() => {monthEvents();}, []);
 
+    function containsEvent(year, day){
+        for(let i = 0; i < month_events.length; i++){
+            if(month_events[i].day === day && month_events[i].year === year) return true;
+        }
+        return false;
+    }
+
     function DayTodos(){
         const day_events = [];
         for(let i = 0; i < month_events.length; i++){
@@ -58,7 +65,6 @@ function App() {
                 () => {
                     setSelected_day(parseInt(value));
                     setShowEvents(true);
-                    // monthEvents();
                 }}>
                 {value}
             </button>
@@ -82,6 +88,7 @@ function App() {
             if(day === today.getDate() && today.getMonth() === date.getMonth() && today.getFullYear() === date.getFullYear())
                 day_name = "today";
             // else if(day === selected_day) day_name = "selected-day";
+            else if(containsEvent(date.getFullYear(), day)) day_name = "has-event";
             else day_name = "day";
 
             monthDays.push(<Square value={day} name={day_name} />);

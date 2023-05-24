@@ -71,6 +71,17 @@ h1 {
     border-width: 2px;
 }
 
+.has-event{
+    color: #00b8ff;
+    border-width: 2px;
+}
+.has-event:hover{
+    border-color: #dddd00;
+}
+.has-event:active{
+    background-color: #dddd00;
+}
+
 .arrow{
     background-color: transparent;
     background-repeat: no-repeat;

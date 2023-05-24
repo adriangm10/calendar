@@ -2,33 +2,29 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-// #[tauri::command]
-// fn greet(name: &str) -> String {
-//     format!("Hello, {}! You've been greeted from Rust!", name)
-// }
 
-use std::{fs::File, io::{BufReader, BufRead, Write}, str::FromStr};
+use std::path::PathBuf;
 
+use rusqlite::{Connection, params};
 use todo::Todo;
 pub mod todo;
 
 #[tauri::command]
 fn month_events(year: usize, month: usize, app_handle: tauri::AppHandle) -> Result<Vec<Todo>, todo::Error> {
     let app_dir = app_handle.path_resolver().app_data_dir();
-    let mut path = app_dir.ok_or(std::io::Error::new(std::io::ErrorKind::Other, "could not get default path"))?;
-    path.push("calendar_events.txt");
-    let f = File::open(path)?;
+    let mut path = app_dir.ok_or(rusqlite::Error::InvalidPath(PathBuf::new()))?;
+    path.push("db.sqlite");
     let mut events: Vec<Todo> = Vec::new();
 
-    for line in BufReader::new(f).lines() {
-        if let Ok(l) = line {
-            let current_event = Todo::from_str(&l);
-            if let Ok(ev) = current_event {
-                if ev.year() == year && ev.month() == month {
-                    events.push(ev);
-                }
-            }
-        }
+    let conn = Connection::open(path)?;
+    let mut stmt = conn.prepare(
+        "SELECT year, month, day, msg
+        FROM events
+        WHERE year = ?1 AND month = ?2"
+    )?;
+    let mut rows = stmt.query([year, month])?;
+    while let Some(row) = rows.next()? {
+        events.push(Todo::new(row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?));
     }
 
     return Ok(events);
@@ -37,15 +33,25 @@ fn month_events(year: usize, month: usize, app_handle: tauri::AppHandle) -> Resu
 #[tauri::command]
 fn write_todo(year: usize, month: usize, day: usize, msg: String, app_handle: tauri::AppHandle) -> Result<(), todo::Error> {
     let app_dir = app_handle.path_resolver().app_data_dir();
-    let mut path = app_dir.ok_or(std::io::Error::new(std::io::ErrorKind::Other, "could not get default path"))?;
-    path.push("calendar_events.txt");
-    let mut f = File::options().append(true).create(true).open(path)?;
-    let mut ev = Todo::new(year, month, day, msg).to_string();
-    ev.push('\n');
-    f.write_all(ev.as_bytes())?;
+    let mut path = app_dir.ok_or(rusqlite::Error::InvalidPath(PathBuf::new()))?;
+    path.push("db.sqlite");
+    let conn = Connection::open(path)?;
 
-    f.sync_all()?;
-    // String::from_str(path.to_str().ok_or(std::io::Error::new(std::io::ErrorKind::Other, "xd"))?).map_err(|_| std::io::Error::new(std::io::ErrorKind::Other, "xd"))?
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS events(
+            year INTEGER,
+            month INTEGER,
+            day INTEGER,
+            msg TEXT
+        )", ()
+    )?;
+
+    conn.execute(
+        "INSERT INTO events(year, month, day, msg)
+        VALUES (?1, ?2, ?3, ?4)",
+        params![year, month, day, msg]
+    )?;
+    
     Ok(())
 }
 
