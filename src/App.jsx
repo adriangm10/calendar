@@ -12,6 +12,7 @@ function App() {
     const [create_event, setCreate_event] = useState(false);
     const [ev_msg, setEv_msg] = useState("");
     const [ev_return, setEv_return] = useState("");
+    const [rmLbl, setRmLbl] = useState("");
     const [show_events, setShowEvents] = useState(false);
     const [month_events, setMonthEvents] = useState([]);
 
@@ -31,18 +32,75 @@ function App() {
         return false;
     }
 
+    /// evs: array of the positions of the events in the array month_events
+    async function removeEvents(evs) {
+        for(let i = 0; i < evs.length; i++){
+            setRmLbl(await invoke("remove_todo", {
+                year: month_events[evs[i]].year,
+                month: month_events[evs[i]].month,
+                day: month_events[evs[i]].day,
+                msg: month_events[evs[i]].msg,
+            }));
+        }
+        monthEvents();
+    }
+
+    async function markFinished(evs) {
+        for(let i = 0; i < evs.length; i++){
+            setRmLbl(await invoke("mark_finished", {
+                year: month_events[evs[i]].year,
+                month: month_events[evs[i]].month,
+                day: month_events[evs[i]].day,
+                msg: month_events[evs[i]].msg,
+            }));
+        }
+        monthEvents();
+    }
+
     function DayTodos(){
         const day_events = [];
+        const state = {
+            button: 1
+        };
+
         for(let i = 0; i < month_events.length; i++){
             if(parseInt(month_events[i].day) === selected_day){
-                day_events.push(<li>{month_events[i].msg}</li>);
+                if(!month_events[i].finished)
+                day_events.push(
+                    <label className="event-container">
+                    {month_events[i].msg}
+                    <input type="checkbox" id={i} value={i} className="event" />
+                    <span className="checkmark"></span>
+                    </label>
+                );
+                else
+                day_events.push(
+                    <label className="event-container">
+                    <s>{month_events[i].msg}</s>
+                    <input type="checkbox" id={i} value={i} className="event" />
+                    <span className="checkmark"></span>
+                    </label>
+                );
             }
         }
 
         return(
-            <ul>
+            <form onSubmit={e => {
+                e.preventDefault();
+                let elems = e.currentTarget.getElementsByClassName("event");
+                let selectedEvs = [];
+
+                for(let i = 0; i < elems.length; i++){
+                    if(elems[i].checked) selectedEvs.push(elems[i].value);
+                }
+
+                if(state.button === 1) removeEvents(selectedEvs);
+                else if(state.button === 2) markFinished(selectedEvs);
+            }}>
+            <button className="trash" onClick={() => state.button = 1} name="trash" value="1"></button>
+            <button className="check" onClick={() => state.button = 2} name="check" value="2"></button><br/>
             {day_events}
-            </ul>
+            </form>
         );
     }
 
@@ -51,12 +109,16 @@ function App() {
     }
 
     async function newEvent(){
+        if(ev_msg.length == 0){
+            setEv_return("The event has no text");
+            return;
+        }
         setEv_return(await invoke("write_todo", {
             year: date.getFullYear(),
             month: date.getMonth(),
             day: selected_day,
             msg: ev_msg
-        }).then(() => { return "the event was succesfully created"; }).catch((e) => {return e.toString();}));
+        }).catch((e) => {return e.toString();}));
     }
 
     function Square({value, name}){
@@ -114,10 +176,13 @@ function App() {
     if(show_events){
         return(
             <>
-            <h1>Events for day {selected_day}</h1>
+            <div className="header">
+            <button onClick={() => {setShowEvents(false); setRmLbl("");}} className="arrow"></button>
+            <p1 style={{paddingLeft: "95px"}}>Events for day {selected_day}</p1>
+            </div>
             <DayTodos />
-            <button onClick={() => setShowEvents(false)}>back</button>
-            <button onClick={() => {setCreate_event(true); setShowEvents(false);}}>New event</button>
+            <button onClick={() => {setCreate_event(true); setShowEvents(false); setRmLbl("");}}>New event</button>
+            <p>{rmLbl}</p>
             </>
         );
     }
@@ -125,20 +190,21 @@ function App() {
     if(create_event){
         return(
             <>
-            <form onSubmit={(e) => {
-                e.preventDefault();
-                newEvent();
-                e.currentTarget.reset();
-            }} >
-            <input onChange={(e) => setEv_msg(e.currentTarget.value)} placeholder="Enter the event description" />
-            <button>create event</button>
-            </form>
-            <button onClick={() => {
+            <button className="arrow" onClick={() => {
                 setCreate_event(false);
                 setShowEvents(true);
                 setEv_return("");
                 monthEvents();
-            }}>back</button>
+            }}></button>
+            <form onSubmit={(e) => {
+                e.preventDefault();
+                newEvent();
+                e.currentTarget.reset();
+                setEv_msg("");
+            }} >
+            <input className="text" onChange={(e) => setEv_msg(e.currentTarget.value)} placeholder="Enter the event description" />
+            <button>create event</button>
+            </form>
             <p>{ev_return}</p>
             </>
         );

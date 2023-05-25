@@ -18,20 +18,20 @@ fn month_events(year: usize, month: usize, app_handle: tauri::AppHandle) -> Resu
 
     let conn = Connection::open(path)?;
     let mut stmt = conn.prepare(
-        "SELECT year, month, day, msg
+        "SELECT year, month, day, finished, msg
         FROM events
         WHERE year = ?1 AND month = ?2"
     )?;
     let mut rows = stmt.query([year, month])?;
     while let Some(row) = rows.next()? {
-        events.push(Todo::new(row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?));
+        events.push(Todo::new(row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?));
     }
 
     return Ok(events);
 }
 
 #[tauri::command]
-fn write_todo(year: usize, month: usize, day: usize, msg: String, app_handle: tauri::AppHandle) -> Result<(), todo::Error> {
+fn write_todo(year: usize, month: usize, day: usize, msg: String, app_handle: tauri::AppHandle) -> Result<String, todo::Error> {
     let app_dir = app_handle.path_resolver().app_data_dir();
     let mut path = app_dir.ok_or(rusqlite::Error::InvalidPath(PathBuf::new()))?;
     path.push("db.sqlite");
@@ -42,6 +42,7 @@ fn write_todo(year: usize, month: usize, day: usize, msg: String, app_handle: ta
             year INTEGER,
             month INTEGER,
             day INTEGER,
+            finished BOOLEAN DEFAULT(FALSE),
             msg TEXT
         )", ()
     )?;
@@ -52,12 +53,47 @@ fn write_todo(year: usize, month: usize, day: usize, msg: String, app_handle: ta
         params![year, month, day, msg]
     )?;
     
+    Ok("The event was succesfully created".into())
+}
+
+#[tauri::command]
+fn mark_finished(year: usize, month: usize, day: usize, msg: String, app_handle: tauri::AppHandle) -> Result<(), todo::Error>{
+    let app_dir = app_handle.path_resolver().app_data_dir();
+    let mut path = app_dir.ok_or(rusqlite::Error::InvalidPath(PathBuf::new()))?;
+    path.push("db.sqlite");
+
+    let conn = Connection::open(path)?;
+
+    conn.execute(
+        "UPDATE events
+        SET finished = TRUE
+        WHERE year = ?1 AND month = ?2 AND day = ?3 AND msg = ?4",
+        params![year, month, day, msg]
+    )?;
+
+    Ok(())
+}
+
+#[tauri::command]
+fn remove_todo(year: usize, month: usize, day: usize, msg: String, app_handle: tauri::AppHandle) -> Result<(), todo::Error>{
+    let app_dir = app_handle.path_resolver().app_data_dir();
+    let mut path = app_dir.ok_or(rusqlite::Error::InvalidPath(PathBuf::new()))?;
+    path.push("db.sqlite");
+
+    let conn = Connection::open(path)?;
+
+    conn.execute(
+        "DELETE FROM events
+        WHERE year = ?1 AND month = ?2 AND day = ?3 AND msg = ?4", 
+        params![year, month, day, msg]
+    )?;
+
     Ok(())
 }
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![month_events, write_todo])
+        .invoke_handler(tauri::generate_handler![month_events, write_todo, remove_todo, mark_finished])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

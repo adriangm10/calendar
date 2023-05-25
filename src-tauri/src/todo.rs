@@ -7,6 +7,7 @@ pub struct Todo {
     year: usize,
     month: usize,
     day: usize,
+    finished: bool,
     msg: String,
 }
 
@@ -27,11 +28,11 @@ impl Serialize for Error {
 
 impl Todo {
     pub fn default() -> Self {
-        Todo { year: 0, month: 0, day: 0, msg: "".to_string() }
+        Todo { year: 0, month: 0, day: 0, finished: false, msg: "".to_string() }
     }
 
-    pub fn new(year: usize, month: usize, day: usize, msg: String) -> Self {
-        Todo { year, month, day, msg }
+    pub fn new(year: usize, month: usize, day: usize, finished: bool, msg: String) -> Self {
+        Todo { year, month, day, finished, msg }
     }
 
     pub fn year(&self) -> usize {
