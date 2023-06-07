@@ -41,8 +41,8 @@
         "fullscreen": false,
         "resizable": false,
         "title": "calendar",
-        "width": 350,
-        "height": 450
+        "width": 300,
+        "height": 375
       }
     ]
   }

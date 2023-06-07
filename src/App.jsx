@@ -4,9 +4,10 @@ import "./App.css";
 
 function App() {
     const [date, setDate] = useState(new Date());
+    date.setDate(1);
     const today = new Date();
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    // const weekDays = [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const [showMonthNames, setShowMonths] = useState(false);
     const [selected_day, setSelected_day] = useState(date.getDate());
     const [create_event, setCreate_event] = useState(false);
@@ -142,6 +143,9 @@ function App() {
         if(first_day === 0) first_day = 6;
         else first_day--;
 
+        for(let i = 0; i < weekDays.length; i++){
+            monthDays.push(<div className="grid-item" style={{fontSize: 14}}>{weekDays[i]}</div>);
+        }
         for(let i = 0; i < first_day; i++){
             monthDays.push(<div className="grid-item"></div>);
         }
@@ -202,7 +206,7 @@ function App() {
                 e.currentTarget.reset();
                 setEv_msg("");
             }} >
-            <input className="text" onChange={(e) => setEv_msg(e.currentTarget.value)} placeholder="Enter the event description" />
+            <input className="text" onChange={(e) => setEv_msg(e.currentTarget.value)} placeholder="Enter event description" />
             <button>create event</button>
             </form>
             <p>{ev_return}</p>
