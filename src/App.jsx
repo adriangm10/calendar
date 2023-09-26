@@ -67,21 +67,21 @@ function App() {
         for(let i = 0; i < month_events.length; i++){
             if(parseInt(month_events[i].day) === selected_day){
                 if(!month_events[i].finished)
-                day_events.push(
-                    <label className="event-container">
-                    {month_events[i].msg}
-                    <input type="checkbox" id={i} value={i} className="event" />
-                    <span className="checkmark"></span>
-                    </label>
-                );
+                    day_events.push(
+                        <label className="event-container">
+                        {month_events[i].msg}
+                        <input type="checkbox" id={i} value={i} className="event" />
+                        <span className="checkmark"></span>
+                        </label>
+                    );
                 else
-                day_events.push(
-                    <label className="event-container">
-                    <s>{month_events[i].msg}</s>
-                    <input type="checkbox" id={i} value={i} className="event" />
-                    <span className="checkmark"></span>
-                    </label>
-                );
+                    day_events.push(
+                        <label className="event-container">
+                        <s>{month_events[i].msg}</s>
+                        <input type="checkbox" id={i} value={i} className="event" />
+                        <span className="checkmark"></span>
+                        </label>
+                    );
             }
         }
 
@@ -205,6 +205,7 @@ function App() {
                 newEvent();
                 e.currentTarget.reset();
                 setEv_msg("");
+                monthEvents();
             }} >
             <input className="text" onChange={(e) => setEv_msg(e.currentTarget.value)} placeholder="Enter event description" />
             <button>create event</button>

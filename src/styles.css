@@ -101,12 +101,18 @@ h1 {
 .trash:hover{
     border-color: #ff1241;
 }
+.trash:active{
+    background-color: #ff1241;
+}
 
 .check{
     color: #00ff9f;
 }
 .check:hover{
     border-color: #00ff9f;
+}
+.check:active{
+    background-color: #00ff9f;
 }
 
 .text {
@@ -188,6 +194,7 @@ button {
   margin-top: 12px;
   padding-left: 25px;
   margin-bottom: 12px;
+  margin-left: 10px;
   cursor: pointer;
   font-size: 16px;
   -webkit-user-select: none;
